@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Self-Care-Kompass</title>
+<style>
+:root{--blau:#2e75b6;--orange:#c55a11;--gruen:#375623}
+*{box-sizing:border-box}
+body{margin:0;background:#b9bddb;font:16px/1.55 Arial,Helvetica,sans-serif;color:#222}
+.karte{max-width:720px;margin:14px auto;background:#fff;padding:20px 18px;box-shadow:0 2px 8px #0003}
+h1{color:#1f4e8c;text-align:center;margin:8px 0 0;font-size:1.8em}
+.sub{text-align:center;color:var(--blau);margin:4px 0 14px;border-bottom:1px solid var(--blau);padding-bottom:14px}
+.intro{border-left:4px solid var(--blau);background:#eaf1fb;padding:10px 14px}
+.intro small{color:#666;font-style:italic}
+.balken{color:#fff;padding:10px 14px;font-weight:bold;margin:30px 0 12px}
+.a{background:var(--blau)}.b{background:var(--orange)}.c{background:var(--gruen)}
+fieldset{border:0;padding:0;margin:0 0 20px}
+legend{font-weight:bold;padding:0;margin-bottom:6px}
+legend b{color:#1f4e8c}
+.hinweis{font-size:.85em;color:#666;font-style:italic;margin:0 0 6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opts label{flex:1 1 auto;min-width:110px;border:1px solid #c5cde0;background:#f1f5fb;padding:9px 8px;text-align:center;cursor:pointer;border-radius:4px}
+.opts.skala label{min-width:0;flex:1}
+.opts label:has(input:checked){background:var(--blau);color:#fff;border-color:var(--blau)}
+.opts input{margin-right:5px}
+.knopf{display:block;width:100%;margin-top:26px;padding:14px;border:0;border-radius:4px;background:var(--gruen);color:#fff;font-size:1.05em;font-weight:bold;cursor:pointer}
+.knopf:focus-visible,input:focus-visible{outline:3px solid #f5a623;outline-offset:2px}
+.fehler{color:#b00020;font-weight:bold;margin:14px 0 0}
+.ergebnis h2{color:#1f4e8c;margin-top:0}
+.ergebnis h3{color:var(--gruen);margin:26px 0 6px}
+.ergebnis section{margin-bottom:10px}
+.ergebnis .gruen{background:#e2efda;border-left:4px solid var(--gruen);padding:4px 14px 10px}
+.ergebnis li{margin-bottom:8px}
+.fuss{color:#666;font-style:italic;font-size:.9em;margin-top:26px}
+</style>
+</head>
+<body>
+
+<!-- ============ ANSICHT 1: FRAGEBOGEN ============ -->
+<main class="karte" id="ansicht-fragen">
+  <h1>Self-Care-Kompass</h1>
+  <p class="sub">Fragebogen zur LehrerInnengesundheit</p>
+  <div class="intro">
+    <b>Willkommen – und danke, dass Sie sich kurz Zeit nehmen!</b><br>
+    Dieser Fragebogen möchte herausfinden, welche Belastungen in Ihrem Schulalltag am stärksten wirken. Ihre Antworten sind vollständig anonym und werden nicht gespeichert: Die Auswertung passiert direkt in Ihrem Browser. Das Ausfüllen dauert maximal 7 Minuten.<br>
+    <small>ca. 5–7 Min. · Anonym · Nur Ankreuzen – keine richtigen oder falschen Antworten.</small>
+  </div>
+
+  <div class="balken a">Teil A &nbsp; Allgemeine Angaben</div>
+  <p class="hinweis">Nur 4 kurze Fragen – Ihre Angaben bleiben anonym.</p>
+  <div id="teil-a"></div>
+
+  <div class="balken b">Teil B &nbsp; Stressfaktoren im Schulalltag</div>
+  <p>Bitte geben Sie an, wie stark die folgenden Bereiche Ihren persönlichen Stresspegel beeinflussen.</p>
+  <p class="hinweis">1 = Trifft gar nicht zu – 2 = Trifft eher nicht zu – 3 = Trifft eher zu – 4 = Trifft vollkommen zu</p>
+  <div id="teil-b"></div>
+  <div id="teil-b12"></div>
+
+  <div class="balken c">Teil C &nbsp; Was würde Ihnen helfen?</div>
+  <p>Die folgenden Fragen helfen uns zu verstehen, welche Art von Unterstützung für Sie sinnvoll wäre.</p>
+  <p class="hinweis">1 = Trifft gar nicht zu – 2 = Trifft eher nicht zu – 3 = Trifft eher zu – 4 = Trifft vollkommen zu</p>
+  <div id="teil-c"></div>
+  <div id="teil-c4"></div>
+
+  <p class="fehler" id="fehler" role="alert"></p>
+  <button class="knopf" type="button" id="knopf-auswerten">Auswertung anzeigen</button>
+</main>
+
+<!-- ============ ANSICHT 2: AUSWERTUNG ============ -->
+<main class="karte ergebnis" id="ansicht-ergebnis" hidden>
+
+  <!-- Fall 1: keine Belastung -->
+  <section id="gruen" class="gruen" hidden>
+    <h2>Herzlichen Glückwunsch, Sie sind aktuell in einer guten Balance!</h2>
+    <p>Vielen Dank für Ihre Teilnahme. Ihre Angaben zeigen, dass Sie Ihren Schulalltag aktuell insgesamt gut bewältigen und keine akuten Stressspitzen vorliegen. Ihre bisherigen Strategien zur Arbeitsorganisation und Abgrenzung scheinen gut zu greifen. Nutzen Sie Ihre stabilen Ressourcen, um diese Balance beizubehalten – kleine präventive Routinen helfen Ihnen dabei, auch in intensiveren Phasen (z. B. vor Zeugnissen oder Konferenzen) gelassen zu bleiben.</p>
+  </section>
+
+  <!-- Fall 2: Belastungsgruppen + Format -->
+  <div id="belastet" hidden>
+    <h2>Ihre individuelle Auswertung &amp; Handlungsempfehlung</h2>
+
+    <section id="gruppe-zeit" hidden>
+      <h3>Zeitdruck &amp; Überstunden</h3>
+      <p>Das Gefühl, nie „fertig“ zu sein, ist eine der häufigsten Ursachen für mentale Erschöpfung im Lehrberuf. Hier geht es vor allem um gezielte Priorisierung, Grenzensetzen und das Erlauben von Mut zur Lücke bei Vorbereitungen.</p>
+    </section>
+    <section id="gruppe-bez" hidden>
+      <h3>Verhalten &amp; Beziehungen</h3>
+      <p>Interpersonelle Spannungen kosten besonders viel emotionale Energie. Hier helfen Deeskalations- und Abgrenzungstechniken sowie eine professionelle Distanzierung nach Unterrichtsschluss.</p>
+    </section>
+    <section id="gruppe-rahmen" hidden>
+      <h3>System- &amp; Umfeldbelastungen</h3>
+      <p>Äußere Rahmenbedingungen lassen sich oft nicht sofort ändern. Der Fokus liegt hier auf dem Energiesparen bei Verwaltungsabläufen und dem aktiven Ausgleich im Privaten.</p>
+    </section>
+    <section id="gruppe-privat" hidden>
+      <h3>Private &amp; gesellschaftliche Belastungen</h3>
+      <p>Wenn äußere oder persönliche Sorgen hinzukommen, schrumpft die Belastungsgrenze im Unterricht deutlich. Hier stehen Selbstmitgefühl und Akut-Entlastung im Vordergrund.</p>
+    </section>
+
+    <!-- Format: Kurze Übungen -->
+    <section id="format-uebungen" hidden>
+      <h3>Ihr gewähltes Wunschformat: Kurze Übungen (unter 5 Min., allein)</h3>
+      <p>Da Sie sich schnelle, unkomplizierte Impulse für zwischendurch wünschen, passen diese Sofort-Maßnahmen gut in Ihren Alltag:</p>
+      <ul>
+        <li><b>Akut-Impuls (3-3-4-Atmung):</b> 3 Sekunden einatmen, 3 Sekunden halten, 4 Sekunden ausatmen. Wiederholen Sie dies 4-mal vor schwierigen Gesprächen oder vor der Klasse.</li>
+        <li><b>Feierabend-Anker (5 Min.):</b> Schließen Sie Ihren Arbeitsplatz vor dem Verlassen der Schule mit einem bewussten Ritual ab (z. B. To-Do-Liste für morgen aufschreiben und Lehrerschreibtisch zuklappen).</li>
+        <li><b>Mini-Check:</b> Nutzen Sie kurze Wege auf dem Schulflur bewusst zum Durchatmen, statt gedanklich schon beim nächsten Schulstunden-Problem zu sein.</li>
+      </ul>
+    </section>
+
+    <!-- Format: Digitales Selbstlernangebot -->
+    <section id="format-digital" hidden>
+      <h3>Ihr gewähltes Wunschformat: Digitales Selbstlernangebot</h3>
+      <p><b>1. Podcast #54: Janina Heistermann über Stressmanagement und Lehrergesundheit</b><br>
+      Gemeinsam mit Lehrergesundheits-Coach Janina Heistermann geht es um die Frage, wie Stress im Alltag wirklich reduziert werden kann: warum To-do-Listen uns manchmal eher stressen als strukturieren, welche Methoden für Klarheit sorgen, die Macht gut geplanter Zeitfenster, das Eisenhower-Prinzip als Entlastungshelfer und wie Kontrasterlebnisse deinen Akku nachhaltig wieder aufladen. Eine Episode für alle Lehrkräfte, die weniger Druck und mehr Leichtigkeit in ihren Alltag bringen wollen.<br>
+      <!-- LINK EINTRAGEN: href="#" durch die echte Spotify-Adresse ersetzen -->
+      <a href="#" target="_blank" rel="noopener">Podcast auf Spotify</a></p>
+      <p><b>2. Digitales WDR-Lernmodul: „Resilienz &amp; Stressbewältigung“ (WDR/Planet Wissen)</b><br>
+      Eine interaktive Online-Seite mit kurzen Videoclips, Selbsttests und praktischen Akut-Techniken (z. B. Progressive Muskelentspannung, Atemübungen für zwischendurch). Öffentlich-rechtlich, komplett kostenfrei, DSGVO-konform und direkt im Browser ohne Account nutzbar.<br>
+      <!-- LINK EINTRAGEN -->
+      <a href="#" target="_blank" rel="noopener">Planet Wissen – Resilienz: Das Geheimnis der psychischen Stärke</a></p>
+    </section>
+
+    <!-- Format: Kurs- oder Workshopempfehlungen -->
+    <section id="format-kurs" hidden>
+      <h3>Ihr gewähltes Wunschformat: Kurs- oder Workshopempfehlungen</h3>
+      <p><b>Schulpsychologischer Dienst der Stadt Köln (offizielle Fortbildungsveranstaltungen)</b><br>
+      Die Familienberatung und der Schulpsychologische Dienst der Stadt Köln bieten regelmäßig kostenfreie Präsenz-Workshops und Selbsterfahrungskurse für Lehrkräfte an Kölner Schulen sowie für Kollegien aus der Region an.</p>
+      <ul>
+        <li><b>Resilienz &amp; Selbstfürsorge:</b> Online- und Präsenz-Kurse zur Stärkung der psychischen Widerstandskraft im Berufsalltag.</li>
+        <li><b>Gesprächsführung:</b> Workshops zur gewaltfreien Kommunikation und Deeskalation bei herausfordernden Elterngesprächen.</li>
+        <li><b>Klassenmanagement &amp; Belastung:</b> Praktische Begleitung im Umgang mit verhaltensauffälligen Schülern und Schulkrisen.</li>
+      </ul>
+      <p><b>Kosten:</b> Vollständig kostenlos für Lehrkräfte aus Köln und Umgebung.<br>
+      <b>Ort:</b> Präsenzveranstaltungen in den Seminarräumen des Dienstes in der Kölner Innenstadt (z. B. Jakordenstraße oder Ebertplatz).<br>
+      <!-- LINK EINTRAGEN -->
+      <a href="#" target="_blank" rel="noopener">Fortbildungen für Lehrkräfte – Stadt Köln</a></p>
+    </section>
+
+    <!-- Format: Affirmationen -->
+    <section id="format-affirm" hidden>
+      <h3>Ihr gewähltes Wunschformat: Affirmationen</h3>
+      <p><b>Gedruckte Kartensets</b></p>
+      <ul>
+        <li><b>Don Bosco Medien: 30 Achtsamkeitskarten für innere Ruhe, Gelassenheit und Präsenz.</b> 32 hochwertige Karten im DIN-A5-Format in einer Box. Ideal für den Schreibtisch, um jeden Morgen eine Karte als Tages-Impuls aufzustellen. Kurze Verschnaufpausen, Zitate und Fokus-Fragen speziell für pädagogische Fachkräfte.</li>
+        <li><b>Kigaleben Shop: Affirmationskarten für Lehrpersonen.</b> 31 liebevoll gestaltete A6-Karten mit stärkenden Botschaften für herausfordernde Tage im Schulalltag, Selbstwert und Abgrenzung.</li>
+      </ul>
+      <p><b>Kostenfreies digitales Kartenset zum Selbst-Ausdrucken</b></p>
+      <ul>
+        <li><b>Eduki (doodleteacher): 50+ mutmachende Affirmationen für Lehrkräfte.</b> Über 50 schön gestaltete Kärtchen mit Mutmachern zu den Themen Abgrenzung, Gelassenheit und Selbstwert zum sofortigen PDF-Download.</li>
+      </ul>
+      <!-- LINKS EINTRAGEN: Don Bosco, Kigaleben, Eduki -->
+      <p><b>Literatur zum Nachlesen</b></p>
+      <ul>
+        <li><b>Carsten Bangert: Vertreib die Affen mit den Kieselsteinen</b> (Beltz Verlag). Impulse für Gesundheit und Zufriedenheit von Lehrerinnen und Lehrern. Sehr praxisnahes Buch mit kurzen Kapiteln, Humor und lebensnahen Beispielen zur Reduzierung von Stressfaktoren am Arbeitsplatz Schule.</li>
+        <li><b>Ann-Marie Backmann: Schule ohne Burnout.</b> Die erfahrene Lehrerin und Coach zeigt praxisnah, wie man den Mental Load im Schulalltag reduzieren kann.</li>
+      </ul>
+    </section>
+  </div>
+
+  <p class="fuss">Das Projektteam – LehrerInnengesundheit &amp; Self-Care-Kompass</p>
+  <button class="knopf" type="button" id="knopf-neu">Fragebogen neu ausfüllen</button>
+</main>
+
+<script>
+/* ---------- FRAGEN (hier kannst du Texte ändern) ---------- */
+const TEIL_A = [
+  ["A1", "In welcher Altersgruppe befinden Sie sich?", ["unter 30", "30–40", "41–50", "51–60", "über 60"]],
+  ["A2", "Wie viele Jahre sind Sie bereits im Lehrberuf tätig?", ["unter 3 Jahre", "3–10 Jahre", "11–20 Jahre", "über 20 Jahre"]],
+  ["A3", "Wie hoch ist Ihr aktueller Stellenumfang?", ["bis 50 %", "51–75 %", "76–100 %"]],
+  ["A4", "Haben Sie Kinder und/oder Pflegeverantwortung im Haushalt?", ["Ja", "Nein", "Möchte ich nicht angeben"]]
+];
+
+/* Gruppen: zeit, bez (Beziehungen), rahmen, privat */
+const TEIL_B = [
+  ["B1", "Ich fühle mich durch administrative Aufgaben (Dokumentationen und Berichte) belastet.", "rahmen"],
+  ["B2", "Ich verspüre Zeitdruck bei der Unterrichtsvorbereitung und Korrekturen.", "zeit"],
+  ["B3", "Mich belastet das herausfordernde Verhalten oder die große Heterogenität der Schüler*innen.", "bez"],
+  ["B4", "Ich erlebe die Kommunikation mit Eltern und Erziehungsberechtigten als stressig oder belastend.", "bez"],
+  ["B5", "Die Zusammenarbeit mit meinem Kollegium oder mit der Schulleitung stellt für mich einen Stressfaktor dar.", "bez"],
+  ["B6", "Eine fehlende oder unzuverlässige digitale Ausstattung an meiner Schule stresst mich im Alltag.", "rahmen"],
+  ["B7", "Ich leide unter einer mangelnden Anerkennung und Wertschätzung für meine geleistete Arbeit.", "rahmen"],
+  ["B8", "Unklare Erwartungshaltungen oder ständige, häufige Veränderungen im Schulalltag belasten mich.", "rahmen"],
+  ["B9", "Ständige Überstunden und das permanente Gefühl, niemals wirklich „fertig“ zu sein, machen mir zu schaffen.", "zeit"],
+  ["B10", "Ich habe private oder familiäre Belastungen, die sich negativ auf meine tägliche Arbeit auswirken.", "privat"],
+  ["B11", "Gesellschaftliche oder globale Ereignisse (wie etwa Krisen und Nachrichten) belasten mich in meinem Alltag.", "privat"]
+];
+
+const B12_NAMEN = ["Administration", "Zeitdruck", "Schüler*innen", "Elternkontakt", "Kollegium", "Digitale Ausstattung",
+  "Anerkennung", "Unklarheit", "Überstunden", "Private Belastungen", "Gesellschaftliche Ereignisse"];
+
+const TEIL_C = [
+  ["C1", "Ich wünsche mir Strategien, um nach der Arbeit besser abzuschalten."],
+  ["C2", "Ich möchte lernen, mit Stress gelassener umzugehen (z. B. Achtsamkeit, Atemübungen)."],
+  ["C3", "Ich möchte mein Zeitmanagement und meine Selbstorganisation verbessern."]
+];
+
+const C4_OPTIONEN = [["uebungen", "Kurze Übungen (unter 5 Min., allein)"], ["digital", "Digitales Selbstlernangebot"],
+  ["kurs", "Kurs- oder Workshopempfehlungen"], ["affirm", "Affirmationen"]];
+
+/* ---------- FORMULAR AUFBAUEN ---------- */
+const GRUPPE = {};
+TEIL_B.forEach(([id, , g]) => GRUPPE[id] = g);
+
+function frage(id, text, optionen, klasse = "", hinweis = "") {
+  const felder = optionen.map(([wert, beschriftung]) =>
+    `<label><input type="radio" name="${id}" value="${wert}">${beschriftung}</label>`).join("");
+  return `<fieldset><legend><b>${id}.</b> ${text}</legend>${hinweis ? `<p class="hinweis">${hinweis}</p>` : ""}<div class="opts ${klasse}">${felder}</div></fieldset>`;
+}
+const skala = [[1, "1"], [2, "2"], [3, "3"], [4, "4"]];
+const einfach = liste => liste.map(x => [x, x]);
+
+document.getElementById("teil-a").innerHTML = TEIL_A.map(([id, t, o]) => frage(id, t, einfach(o))).join("");
+document.getElementById("teil-b").innerHTML = TEIL_B.map(([id, t]) => frage(id, t, skala, "skala")).join("");
+document.getElementById("teil-b12").innerHTML = frage("B12",
+  "Welcher der oben genannten Bereiche belastet Sie persönlich am stärksten?",
+  [...B12_NAMEN.map((n, i) => ["B" + (i + 1), n]), ["alle", "gleichmäßig alle"]], "", "Bitte nur eine Antwort auswählen.");
+document.getElementById("teil-c").innerHTML = TEIL_C.map(([id, t]) => frage(id, t, skala, "skala")).join("");
+document.getElementById("teil-c4").innerHTML = frage("C4",
+  "Welches Format für Unterstützungsangebote würde am besten in Ihren Alltag passen?", C4_OPTIONEN, "", "Bitte nur eine Antwort auswählen.");
+
+/* ---------- AUSWERTUNG ---------- */
+const wert = name => {
+  const x = document.querySelector(`input[name="${name}"]:checked`);
+  return x ? x.value : null;
+};
+const zeige = (id, an = true) => { document.getElementById(id).hidden = !an; };
+
+function auswerten() {
+  const pflicht = [...Object.keys(GRUPPE), "B12", "C4"];
+  const fehlt = pflicht.filter(n => !wert(n));
+  const fehler = document.getElementById("fehler");
+  if (fehlt.length) {
+    fehler.textContent = "Bitte beantworten Sie noch: " + fehlt.join(", ");
+    return;
+  }
+  fehler.textContent = "";
+
+  // Alle Gruppen mit mindestens einem Wert von 3 oder 4
+  const gruppen = new Set();
+  for (const id in GRUPPE) if (Number(wert(id)) >= 3) gruppen.add(GRUPPE[id]);
+  // Gruppe des Hauptstressors (B12) kommt immer dazu
+  if (GRUPPE[wert("B12")]) gruppen.add(GRUPPE[wert("B12")]);
+
+  ["zeit", "bez", "rahmen", "privat"].forEach(g => zeige("gruppe-" + g, gruppen.has(g)));
+  C4_OPTIONEN.forEach(([k]) => zeige("format-" + k, gruppen.size > 0 && wert("C4") === k));
+  zeige("belastet", gruppen.size > 0);
+  zeige("gruen", gruppen.size === 0);
+
+  zeige("ansicht-fragen", false);
+  zeige("ansicht-ergebnis", true);
+  window.scrollTo(0, 0);
+}
+
+document.getElementById("knopf-auswerten").addEventListener("click", auswerten);
+document.getElementById("knopf-neu").addEventListener("click", () => {
+  document.querySelectorAll("input[type=radio]").forEach(r => r.checked = false);
+  zeige("ansicht-ergebnis", false);
+  zeige("ansicht-fragen", true);
+  window.scrollTo(0, 0);
+});
+</script>
+</body>
+</html>
